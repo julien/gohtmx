@@ -13,9 +13,6 @@ import (
 )
 
 func TestStartServer(t *testing.T) {
-	// repo, teardown := setup(t, "test.service.startserver.db")
-	// defer teardown()
-
 	tcs := []struct {
 		name    string
 		addr    string
@@ -53,9 +50,6 @@ func TestStartServer(t *testing.T) {
 }
 
 func TestServiceTodo(t *testing.T) {
-	// repo, teardown := setup(t, "test.service.create.db")
-	// defer teardown()
-
 	tcs := []struct {
 		name       string
 		addr       string
