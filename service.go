@@ -11,8 +11,6 @@ import (
 	"github.com/google/uuid"
 )
 
-var once sync.Once
-
 type page struct {
 	Title string
 	Todos []todo

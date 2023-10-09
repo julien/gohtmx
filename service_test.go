@@ -59,7 +59,8 @@ func TestServiceTodo(t *testing.T) {
 	tcs := []struct {
 		name       string
 		addr       string
-		method string
+		method     string
+		headers    http.Header
 		data       url.Values
 		statusCode int
 	}{
@@ -73,6 +74,12 @@ func TestServiceTodo(t *testing.T) {
 			addr:       ":3000",
 			data:       url.Values{"title": {"stuff"}},
 			method: http.MethodPut,	
+			statusCode: http.StatusMethodNotAllowed,
+		},
+		{
+			addr:       ":3000",
+			data:       url.Values{"title": {"stuff"}},
+			method: http.MethodPut,
 			statusCode: http.StatusMethodNotAllowed,
 		},
 	}
