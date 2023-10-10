@@ -12,8 +12,7 @@ import (
 )
 
 type page struct {
-	Title string
-	Todos []todo
+	Todos map[string]todo
 }
 
 type todo struct {
@@ -26,7 +25,7 @@ type service struct {
 	addr    string
 	handler http.Handler
 	tpl     *template.Template
-	todos   []todo
+	todos   map[string]todo
 }
 
 func Service(addr string) *service {
@@ -36,12 +35,12 @@ func Service(addr string) *service {
 	}
 
 	handler := http.NewServeMux()
-	handler.HandleFunc("/todo", s.todo)
+	handler.HandleFunc("/create", s.create)
 	handler.HandleFunc("/update", s.update)
-	handler.HandleFunc("/", s.index)
+	handler.HandleFunc("/", s.read)
 	s.handler = handler
 
-	s.todos = make([]todo, 0)
+	s.todos = make(map[string]todo)
 
 	return s
 }
@@ -64,14 +63,14 @@ func (s *service) Start(wg *sync.WaitGroup) *http.Server {
 	return srv
 }
 
-func (s *service) index(w http.ResponseWriter, r *http.Request) {
-	if err := s.tpl.Execute(w, page{Title: "TodoList", Todos: s.todos}); err != nil {
+func (s *service) read(w http.ResponseWriter, r *http.Request) {
+	if err := s.tpl.Execute(w, page{Todos: s.todos}); err != nil {
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
 }
 
-func (s *service) todo(w http.ResponseWriter, r *http.Request) {
+func (s *service) create(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
@@ -93,7 +92,9 @@ func (s *service) todo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.todos = append(s.todos, todo{ID: uuid.New(), Title: title, Done: false})
+	id := uuid.New()
+	s.todos[id.String()] = todo{ID: id, Title: title}
+
 	w.WriteHeader(http.StatusCreated)
 	s.tpl.ExecuteTemplate(w, "content", s.todos)
 }
@@ -119,14 +120,13 @@ func (s *service) update(w http.ResponseWriter, r *http.Request) {
 		id   = r.FormValue("id")
 	)
 
-	for i := 0; i < len(s.todos); i++ {
-		if s.todos[i].ID.String() == id {
-			if done == "on" {
-				s.todos[i].Done = true
-			} else {
-				s.todos[i].Done = false
-			}
+	if todo, ok := s.todos[id]; ok {
+		if done == "on" {
+			todo.Done = true
+		} else {
+			todo.Done = false
 		}
+		s.todos[id] = todo
 	}
 
 	w.WriteHeader(http.StatusOK)

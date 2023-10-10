@@ -3,7 +3,7 @@
 {{end}}
 
 {{define "content"}}
-<form hx-boost="true" hx-post="/todo" class="form" hx-target="#content">
+<form hx-boost="true" hx-post="/create" class="form" hx-target="#content">
 	{{template "input"}}
 </form>
 {{if .}}
@@ -25,7 +25,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>{{.Title}}</title>
+	<title></title>
 	<style type="text/css">
 	.form {
 		display: flex;
