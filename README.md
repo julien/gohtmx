@@ -1,3 +1,1 @@
-The "classic" todo list "application" but with Go and HTMX
-
-Work in progress, no tests, be warned.
+The "classic" todo list but with Go and HTMX.
