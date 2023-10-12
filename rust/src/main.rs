@@ -39,46 +39,48 @@ struct UpdateInput {
 
 const MAIN_TEMPLATE: &'static str = r###"
 <!DOCTYPE html>
-<html>
+<html lang="en-US" dir="ltr">
 <head>
-	<title></title>
-	<style type="text/css">
-	.form {
-		display: flex;
-		flex-direction: column;
-	}
-	.input {
-		padding: 12px;
-		font-size: 1.2em;
-	}
-	.todo-item {
-		display: flex;
-		flex-direction: row;
-		font-family: sans-serif;
-		font-size: 2.0em;
-	}
-	.done {
-		color: #999;
-		text-decoration: line-through;
-	}
-	input.check {
-		transform: scale(2);
-		margin: 12px;
-	}
-	.inline-form {
-		display: flex;
-		flex-direction: row;
-	}
-	ul {
-		list-style-type: none;
-		padding: 0;
-	}
-	</style>
-	<link rel="icon" href="data:,">
-	<script src="https://unpkg.com/htmx.org@latest"></script>
+    <title>Get things done</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style type="text/css">
+    .form {
+        display: flex;
+        flex-direction: column;
+    }
+    .input {
+        padding: 12px;
+        font-size: 1.2em;
+    }
+    .todo-item {
+        display: flex;
+        flex-direction: row;
+        font-family: sans-serif;
+        font-size: 2.0em;
+    }
+    .done {
+        color: #999;
+        text-decoration: line-through;
+    }
+    input.check {
+        transform: scale(2);
+        margin: 12px;
+    }
+    .inline-form {
+        display: flex;
+        flex-direction: row;
+    }
+    ul {
+        list-style-type: none;
+        padding: 0;
+    }
+    </style>
+    <link rel="icon" href="data:,">
+    <script src="https://unpkg.com/htmx.org@latest"></script>
 </head>
 <body>
-	<div class="content" id="content">
+    <div class="content" id="content">
          {% include "content_template" %}	
     </div>
 </body>
@@ -87,7 +89,7 @@ const MAIN_TEMPLATE: &'static str = r###"
 
 const CONTENT_TEMPLATE: &'static str = r###"
         <form hx-boost="true" hx-post="/create" class="form" hx-target="#content">
-            <input name="title" class="input" type="text" placeholder="what needs to be done?" autofocus>
+            <input name="title" class="input" type="text" placeholder="What needs to be done?" autofocus>
         </form>
         {% if todos|length %}
         <ul>
