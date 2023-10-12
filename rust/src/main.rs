@@ -130,7 +130,7 @@ async fn read(State(state): State<SharedState>) -> Html<String> {
         .add_template("content_template", CONTENT_TEMPLATE)
         .is_err()
     {
-        panic!("error")
+        panic!("could not add template")
     }
     let todos = &state.read().unwrap().todos;
 
