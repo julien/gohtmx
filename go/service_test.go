@@ -251,7 +251,7 @@ func TestServiceUpdate(t *testing.T) {
 			var wg sync.WaitGroup
 			wg.Add(1)
 			service := Service(tc.addr)
-			service.todos[id.String()] = todo{ID: id, Title: "stuff"}
+			service.todos = append(service.todos, todo{ID: id, Title: "stuff"})
 			srv := service.Start(&wg)
 
 			ctx, cancel := context.WithTimeout(context.TODO(), time.Second)
