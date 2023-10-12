@@ -1,0 +1,13 @@
+[package]
+name = "rusthtmx"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+axum = "0.6.20"
+minijinja = { version = "1.0.8", features = ["builtins"] }
+serde = { version = "1.0.188", features = ["derive"] }
+tokio = { version = "1.0", features = ["full"] }
+uuid = { version = "1.4.1", features = ["v4", "fast-rng", "macro-diagnostics"] }
