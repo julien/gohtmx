@@ -1,1 +1,2 @@
-The "classic" todo list but with Go and HTMX.
+[htmx](https://htmx.org/) examples with Go and Rust.
+
