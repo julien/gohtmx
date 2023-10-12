@@ -12,7 +12,7 @@ import (
 )
 
 type page struct {
-	Todos map[string]todo
+	Todos []todo
 }
 
 type todo struct {
@@ -25,7 +25,7 @@ type service struct {
 	addr    string
 	handler http.Handler
 	tpl     *template.Template
-	todos   map[string]todo
+	todos   []todo
 }
 
 func Service(addr string) *service {
@@ -40,7 +40,7 @@ func Service(addr string) *service {
 	handler.HandleFunc("/", s.read)
 	s.handler = handler
 
-	s.todos = make(map[string]todo)
+	s.todos = make([]todo, 0)
 
 	return s
 }
@@ -92,8 +92,7 @@ func (s *service) create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := uuid.New()
-	s.todos[id.String()] = todo{ID: id, Title: title}
+	s.todos = append(s.todos, todo{ID: uuid.New(), Title: title})
 
 	w.WriteHeader(http.StatusCreated)
 	s.tpl.ExecuteTemplate(w, "content", s.todos)
@@ -120,13 +119,14 @@ func (s *service) update(w http.ResponseWriter, r *http.Request) {
 		id   = r.FormValue("id")
 	)
 
-	if todo, ok := s.todos[id]; ok {
-		if done == "on" {
-			todo.Done = true
-		} else {
-			todo.Done = false
+	for i := 0; i < len(s.todos); i++ {
+		if s.todos[i].ID.String() == id {
+			if done == "on" {
+				s.todos[i].Done = true
+			} else {
+				s.todos[i].Done = false
+			}
 		}
-		s.todos[id] = todo
 	}
 
 	w.WriteHeader(http.StatusOK)
