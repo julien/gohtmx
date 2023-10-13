@@ -1,6 +1,6 @@
 use axum::{
     extract::{Form, State},
-    response::Html,
+    response::{Html, Json},
     routing::{get, post},
     Router,
 };
@@ -81,7 +81,7 @@ const MAIN_TEMPLATE: &'static str = r###"
 </head>
 <body>
     <div class="content" id="content">
-         {% include "content_template" %}	
+         {% include "content_template" %}
     </div>
 </body>
 </html>
@@ -108,13 +108,7 @@ const CONTENT_TEMPLATE: &'static str = r###"
 
 #[tokio::main]
 async fn main() {
-    let state = SharedState::default();
-
-    let app = Router::new()
-        .route("/", get(read))
-        .route("/create", post(create))
-        .route("/update", post(update))
-        .with_state(Arc::clone(&state));
+    let app = app();
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
 
@@ -122,6 +116,22 @@ async fn main() {
         .serve(app.into_make_service())
         .await
         .unwrap();
+}
+
+fn app() -> Router {
+    let state = SharedState::default();
+
+    Router::new()
+        .route("/", get(read))
+        .route("/create", post(create))
+        .route("/update", post(update))
+        .route("/todos", get(todos))
+        .with_state(Arc::clone(&state))
+}
+
+async fn todos(State(state): State<SharedState>) -> Json<Vec<Todo>> {
+    let todos = &state.read().unwrap().todos;
+    Json(todos.clone())
 }
 
 async fn read(State(state): State<SharedState>) -> Html<String> {
@@ -176,4 +186,55 @@ async fn update(State(state): State<SharedState>, input: Form<UpdateInput>) -> H
     let todos = &state.read().unwrap().todos;
     let html = render!(CONTENT_TEMPLATE, todos => todos);
     Html(html)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use axum::{
+        body::Body,
+        http::{self, Request, StatusCode},
+    };
+    use tower::ServiceExt;
+
+    #[tokio::test]
+    async fn test_read_ok() {
+        let response = app()
+            .oneshot(
+                Request::builder()
+                    .method(http::Method::GET)
+                    .uri("/")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+        let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
+        assert!(body.len() > 0);
+    }
+
+    #[tokio::test]
+    async fn test_create_ok() {
+        // TODO: make 2 requests
+        let app = app();
+        let value = &[("title", "foo")];
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method(http::Method::POST)
+                    .header("content-type", "application/x-www-form-urlencoded")
+                    .uri("/create")
+                    .body(Body::from(serde_urlencoded::to_string(value).unwrap()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+        let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
+        assert!(body.len() > 0);
+    }
 }

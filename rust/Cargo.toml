@@ -7,7 +7,16 @@ edition = "2021"
 
 [dependencies]
 axum = "0.6.20"
+bytes = "1.5.0"
+hyper = { version = "0.14", features = ["full"] }
 minijinja = { version = "1.0.8", features = ["builtins"] }
 serde = { version = "1.0.188", features = ["derive"] }
+serde_json = "1.0.107"
+serde_urlencoded = "0.7.1"
 tokio = { version = "1.0", features = ["full"] }
+
+tower-http = { version = "0.4.0", features = ["trace"] }
 uuid = { version = "1.4.1", features = ["v4", "fast-rng", "macro-diagnostics"] }
+
+[dev-dependencies]
+tower = { version = "0.4", features = ["util"] }
