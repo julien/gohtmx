@@ -1,0 +1,16 @@
+<form hx-boost="true" hx-post="/create" class="form" hx-target="#content">
+	<input name="title" class="input" type="text" placeholder="What needs to be done?" autofocus>
+</form>
+{% if todos|length %}
+<ul>
+	{% for todo in todos %}
+	<li class="todo-item {% if todo.done %}done{% endif %}">
+		<form hx-target="#content" class="inline-form">
+			<input name="id" type="hidden" value="{{ todo.id }}">
+			<input class="check" name="done" type="checkbox" hx-trigger="click" hx-post="/update" {% if todo.done %}checked{% endif %}>
+			{{ todo.title }}
+		</form>
+	</li>
+	{% endfor %}
+</ul>
+{% endif %}
