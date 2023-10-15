@@ -195,8 +195,8 @@ mod tests {
         body::Body,
         http::{self, Request, StatusCode},
     };
-    use serde_json::Value;
     use serde_json::json;
+    use serde_json::Value;
     use tower::{Service, ServiceExt};
 
     #[tokio::test]
@@ -262,12 +262,8 @@ mod tests {
         let todo = todos.get(0).unwrap();
         assert!(todo.id.len() > 0);
 
-        let value = &[
-            ("done", "on"),
-            ("id", &todo.id),
-        ];
+        let value = &[("done", "on"), ("id", &todo.id)];
 
-        // Update
         let request = Request::builder()
             .method(http::Method::POST)
             .header("content-type", "application/x-www-form-urlencoded")
