@@ -37,7 +37,7 @@ struct UpdateInput {
     done: Option<String>,
 }
 
-const MAIN_TEMPLATE: &'static str = r###"
+const MAIN_TEMPLATE: &str = r#"
 <!DOCTYPE html>
 <html lang="en-US" dir="ltr">
 <head>
@@ -85,9 +85,9 @@ const MAIN_TEMPLATE: &'static str = r###"
     </div>
 </body>
 </html>
-"###;
+"#;
 
-const CONTENT_TEMPLATE: &'static str = r###"
+const CONTENT_TEMPLATE: &str = r##"
         <form hx-boost="true" hx-post="/create" class="form" hx-target="#content">
             <input name="title" class="input" type="text" placeholder="What needs to be done?" autofocus>
         </form>
@@ -104,7 +104,7 @@ const CONTENT_TEMPLATE: &'static str = r###"
             {% endfor %}
         </ul>
         {% endif %}
-"###;
+"##;
 
 #[tokio::main]
 async fn main() {
@@ -174,11 +174,7 @@ async fn update(State(state): State<SharedState>, input: Form<UpdateInput>) -> H
     let mut writer = state.write().unwrap();
     for todo in writer.todos.iter_mut() {
         if todo.id == id {
-            if done == "on" {
-                todo.done = true;
-            } else {
-                todo.done = false;
-            }
+            todo.done = done == "on";
         }
     }
     drop(writer);
