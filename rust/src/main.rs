@@ -195,7 +195,9 @@ mod tests {
         body::Body,
         http::{self, Request, StatusCode},
     };
-    use tower::ServiceExt;
+    use serde_json::Value;
+    use serde_json::json;
+    use tower::{Service, ServiceExt};
 
     #[tokio::test]
     async fn test_read_ok() {
@@ -217,19 +219,66 @@ mod tests {
 
     #[tokio::test]
     async fn test_create_ok() {
-        // TODO: make 2 requests
-        let app = app();
+        let mut app = app();
         let value = &[("title", "foo")];
 
-        let response = app
-            .oneshot(
-                Request::builder()
-                    .method(http::Method::POST)
-                    .header("content-type", "application/x-www-form-urlencoded")
-                    .uri("/create")
-                    .body(Body::from(serde_urlencoded::to_string(value).unwrap()))
-                    .unwrap(),
-            )
+        let request = Request::builder()
+            .method(http::Method::POST)
+            .header("content-type", "application/x-www-form-urlencoded")
+            .uri("/create")
+            .body(Body::from(serde_urlencoded::to_string(value).unwrap()))
+            .unwrap();
+
+        let response = ServiceExt::<Request<Body>>::ready(&mut app)
+            .await
+            .unwrap()
+            .call(request)
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+        let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
+        assert!(body.len() > 0);
+
+        let request = Request::builder()
+            .method(http::Method::GET)
+            .uri("/todos")
+            .body(Body::empty())
+            .unwrap();
+
+        let response = ServiceExt::<Request<Body>>::ready(&mut app)
+            .await
+            .unwrap()
+            .call(request)
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+        let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
+
+        let body: Value = serde_json::from_slice(&body).unwrap();
+        let json = json!(body);
+        let todos: Vec<Todo> = serde_json::from_value(json).unwrap();
+        let todo = todos.get(0).unwrap();
+        assert!(todo.id.len() > 0);
+
+        let value = &[
+            ("done", "on"),
+            ("id", &todo.id),
+        ];
+
+        // Update
+        let request = Request::builder()
+            .method(http::Method::POST)
+            .header("content-type", "application/x-www-form-urlencoded")
+            .uri("/update")
+            .body(Body::from(serde_urlencoded::to_string(value).unwrap()))
+            .unwrap();
+
+        let response = ServiceExt::<Request<Body>>::ready(&mut app)
+            .await
+            .unwrap()
+            .call(request)
             .await
             .unwrap();
 
